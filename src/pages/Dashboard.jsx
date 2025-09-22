@@ -22,13 +22,21 @@ const Dashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [greeting, setGreeting] = useState('');
 
-  // Mock data - in a real app, this would come from your backend
-  const [courseProgress] = useState([
-    { id: 1, name: 'HTML Fundamentals', progress: 75, totalLessons: 20, completedLessons: 15, color: '#ff6b6b' },
-    { id: 2, name: 'CSS Styling', progress: 45, totalLessons: 18, completedLessons: 8, color: '#4ecdc4' },
-    { id: 3, name: 'JavaScript Basics', progress: 30, totalLessons: 25, completedLessons: 7, color: '#45b7d1' },
-    { id: 4, name: 'React Fundamentals', progress: 15, totalLessons: 30, completedLessons: 4, color: '#96ceb4' }
-  ]);
+  // Fetch registered courses and progress for the logged-in student
+  const [courseProgress, setCourseProgress] = useState([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
+
+  useEffect(() => {
+    if (user?.role === 'student') {
+      fetch(`/api/student/courses?studentId=${user._id}`)
+        .then(res => res.json())
+        .then(data => {
+          setCourseProgress(data);
+          setLoadingCourses(false);
+        })
+        .catch(() => setLoadingCourses(false));
+    }
+  }, [user]);
 
   const [recentActivities] = useState([
     { id: 1, type: 'lesson', title: 'Completed HTML Forms lesson', time: '2 hours ago', icon: FaCheckCircle },
@@ -123,27 +131,33 @@ const Dashboard = () => {
             <Link to="/courses" className="view-all">View All <FaArrowRight /></Link>
           </div>
           <div className="progress-list">
-            {courseProgress.map(course => (
-              <div key={course.id} className="progress-item">
-                <div className="progress-info">
-                  <h4>{course.name}</h4>
-                  <p>{course.completedLessons}/{course.totalLessons} lessons completed</p>
+            {loadingCourses ? (
+              <div>Loading your courses...</div>
+            ) : courseProgress.length === 0 ? (
+              <div>You are not registered for any courses.</div>
+            ) : (
+              courseProgress.map(course => (
+                <div key={course.id} className="progress-item">
+                  <div className="progress-info">
+                    <h4>{course.name}</h4>
+                    <p>{course.completedLessons}/{course.totalLessons} lessons completed</p>
+                  </div>
+                  <div className="progress-bar-container">
+                    <div 
+                      className="progress-bar" 
+                      style={{ 
+                        width: `${course.progress}%`,
+                        backgroundColor: course.color || '#4ecdc4'
+                      }}
+                    ></div>
+                    <span className="progress-text">{course.progress}%</span>
+                  </div>
+                  <Link to={`/courses/${course.name.toLowerCase().replace(/\s+/g, '')}`} className="continue-btn">
+                    Continue
+                  </Link>
                 </div>
-                <div className="progress-bar-container">
-                  <div 
-                    className="progress-bar" 
-                    style={{ 
-                      width: `${course.progress}%`,
-                      backgroundColor: course.color 
-                    }}
-                  ></div>
-                  <span className="progress-text">{course.progress}%</span>
-                </div>
-                <Link to={`/courses/${course.name.toLowerCase().replace(' ', '')}`} className="continue-btn">
-                  Continue
-                </Link>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 

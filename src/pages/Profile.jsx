@@ -1,14 +1,14 @@
 import React from 'react'
 import '../styles/profile.css'
 import { FaFacebook, FaGithub, FaLinkedin } from 'react-icons/fa'
-
+import { useAuth } from '../context/AuthContext'
 
 const enrolledCourses = [
   {
     id: 1,
     title: "Javascript Essentials",
     progress: 40,
-    icon: "https://files.ably.io/ghost/prod/2023/12/choosing-the-best-javascript-frameworks-for-your-next-project.png" , // Replace with actual icon
+    icon: "https://files.ably.io/ghost/prod/2023/12/choosing-the-best-javascript-frameworks-for-your-next-project.png" ,
   },
   {
     id: 2,
@@ -40,6 +40,22 @@ const completedCourses = [
 ];
 
 export default function Profile() {
+  const { user } = useAuth();
+
+  // Fallback guest user if not logged in
+  const fallbackUser = {
+    name: 'Guest User',
+    username: 'guest',
+    email: 'guest@example.com',
+    college: 'Your College',
+    avatar: 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+    linkedin: '',
+    github: '',
+    facebook: '',
+  };
+
+  const profile = user || fallbackUser;
+
   return (
     <>
       <h1>Profile</h1>
@@ -47,26 +63,24 @@ export default function Profile() {
         <h2>About</h2>
         <div className="profile-cont">
           <div className="profile-left">
-            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="profile-img" />
+            <img src={profile.avatar} alt="profile-img" />
           </div>
           <div className="profile-right">
-            <h2>Jhon Wilson</h2>
-            <h4>Jhon_145</h4>
-            <h4>Jhon@gmail.com</h4>
-            <h3>Karpagam College of Engineering</h3>
+            <h2>{profile.name}</h2>
+            <h4>@{profile.username}</h4>
+            <h4>{profile.email}</h4>
+            <h3>{profile.college}</h3>
           </div>
           <hr />
           <div className="profiles">
             <button>Edit Profile</button>
             <ul>
-              <li><h3><FaLinkedin className='icon' color='indigo' />:Jhon Wilson</h3></li>
-              <li><h3><FaGithub className='icon' color='indigo' />:Jhon-wilson-145</h3></li>
-              <li><h3><FaFacebook className='icon' color='indigo' />:Jhon wilson</h3></li>
+              <li><h3><FaLinkedin className='icon' color='indigo' />: {profile.linkedin || 'Not linked'}</h3></li>
+              <li><h3><FaGithub className='icon' color='indigo' />: {profile.github || 'Not linked'}</h3></li>
+              <li><h3><FaFacebook className='icon' color='indigo' />: {profile.facebook || 'Not linked'}</h3></li>
             </ul>
-
           </div>
         </div>
-
       </div>
       <div className="enrolled-courses">
         <h1>Continue Your Journey</h1>
@@ -100,10 +114,6 @@ export default function Profile() {
           </div>
         ))}
       </div>
-
-
-
-
     </>
   )
 }

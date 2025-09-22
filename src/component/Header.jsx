@@ -1,5 +1,5 @@
 //Header.jsx
-import React, {  useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react';
 import logo from '../glow mind.png'
 import { useAuth } from '../context/AuthContext'; 
 import { Link } from 'react-router-dom'
@@ -114,13 +114,30 @@ const courses = [
             <FaUser size={20} className="profile" onClick={toggleDropdown} />
             {isOpen && (
               <div className="dropdown-menu">
-                <li><Link to="/profile" className="dropdown-li"><FaUser className="icon" color="indigo" size={15} /> My Profile</Link></li>
+                {user?.role === 'student' && (
+  <li><Link to="/dashboard" className="dropdown-li"><FaUser className="icon" color="indigo" size={15} /> Dashboard</Link></li>
+)}
+{user?.role === 'instructor' && (
+  <li><Link to="/instructor-dashboard" className="dropdown-li"><FaChalkboardTeacher className="icon" color="indigo" size={15} /> Dashboard</Link></li>
+)}
                 <li><Link to="/courses" className="dropdown-li"><FaBook className="icon" color="indigo" size={15} /> My Courses</Link></li>
                 {user?.role === 'instructor' && (
                   <li><Link to="/instructor-dashboard" className="dropdown-li"><FaChalkboardTeacher className="icon" color="indigo" size={15} /> Instructor Dashboard</Link></li>
                 )}
                 <li><Link to="/settings" className="dropdown-li"><FaCog className="icon" color="indigo" size={15} /> Settings</Link></li>
-                <li><button id='logout-btn' onClick={() => { logout(); setIsOpen(false); }} className="dropdown-li logout-btn"><FaSignOutAlt className="icon" color="indigo" size={15} /> Log Out</button></li>
+                <li>
+  <a
+    href="#logout"
+    onClick={e => {
+      e.preventDefault();
+      logout();
+      setIsOpen(false);
+    }}
+    className="dropdown-li logout-btn"
+  >
+    <FaSignOutAlt className="icon" color="indigo" size={15} /> Log Out
+  </a>
+</li>
               </div>
             )}
           </>
